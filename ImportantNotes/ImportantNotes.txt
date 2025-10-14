@@ -1,0 +1,67 @@
+prerequisites for Apache Kafka + ZooKeeper:
+
+| Prerequisite         | Details                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------- |
+| **Java (JDK)**       | Install JDK 11 or 17 (not just JRE). Set `JAVA_HOME`.                                        |
+| **ZooKeeper**        | Required for Kafka < 3.5. Configure `zoo.cfg` with `tickTime`, `dataDir`, `clientPort=2181`. |
+| **Kafka**            | Extract binaries. Default broker port = **9092**.                                            |
+| **OS**               | Works on Linux, macOS, Windows (PowerShell/WSL preferred on Windows).                        |
+| **Networking**       | Ensure ports **2181 (ZooKeeper)** & **9092 (Kafka)** are free.                               |
+| **Disk & Memory**    | ZooKeeper \~512MB, Kafka broker \~1–2GB, several GB free disk.                               |
+| **Env Variables**    | `JAVA_HOME` set to JDK, optional PATH update for Kafka `bin\windows`.                        |
+| **Tools (optional)** | `telnet`, `curl`, `netstat`, `jps` for debugging and checks.                                 |
+
+Install WSL (Windows Subsystem for Linux) for initializing kafka and zookeeper server
+1) Open PowerShell as Administrator by Pressing Windows Key → type “PowerShell” → right-click → Run as administrator.
+2) Run the following command: wsl --install
+3) Setup the username and password for ubuntu & Restart your computer
+4) Check WSL version by running the powershell command : wsl --list --verbose
+5) Again open the Windows Powershell and launch Ubuntu directly from any Windows terminal using command: wsl
+6) If above command didn't worked then use command: wsl -d Ubuntu
+7) Install essential tools inside WSL : I) sudo apt update II) sudo apt install openjdk-17-jdk wget unzip -y
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Download and Install Kafka
+1) Go to website : https://kafka.apache.org/downloads
+2) Select the latest Kafka Version for Long Term Support
+3) Click on Binary download and you will see the file ".tgz" downloaded
+4) Now Open the terminal or git bash inside that folder and run the command: tar -xf <file name>.tgz
+Command Example: tar -xf kafka_2.13-4.1.0.tgz
+Folder Name: kafka_2.13-4.1.0
+5) Now to start the kafka server you should first start the zookeeper server. Refer the below installation procedure for zookeeper installation
+6) To start the kafka server on windows navigate to folder "\kafka_2.13-4.1.0\bin\windows"
+7) We have to execute the "kafka-server-start.sh" file & this file requires the "server.properties" configuration file
+9) To start thr kafka server on Linux or Mac navigate to folder "\kafka_2.13-4.1.0\bin\" and execute the "kafka-server-start.sh" file
+10) Configuration file "server.properties" is present inside the folder "\kafka_2.13-4.1.0\config\" We have to edit this file as per our requirement
+11) To start the kafka server on windows use the following commands
+Commands Example:
+    -> cd /d D:\ApacheKafkaAndZookeeper\Kafka\kafka_2.13-4.1.0\bin\windows {On Windows we have to execute "kafka-server-start.bat" file}
+    -> .\bin\windows\kafka-server-start.bat .\config\server.properties
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+Zookeeper Download and Installation
+1) Go to website : https://zookeeper.apache.org/releases.html#download
+2) Select the latest zookeeper stable release version
+3) Click on download and you will see the file ".tar.gz" downloaded
+4) Once download is completed then navigate to the folder where ".tar.gz" file is present
+5) Open the terminal or git bash inside that folder and run the command : tar -xf <file name>.tar.gz
+6) After running above command you will see the folder "apache-zookeeper-<version>-bin".
+Command Example : tar -xf apache-zookeeper-3.8.4-bin.tar.gz
+Folder Example: apache-zookeeper-3.8.4-bin
+7) Now we have to start zookeeper server & for that we have to run the "zkServer.sh" file present inside the folder "apache-zookeeper-3.8.4-bin"
+8) Now after running the script "zkServer.sh" it will look for "zoo.cfg" file which is zookeeper configuration file in our system
+9) Now create the "zoo.cfg" file inside the folder "apache-zookeeper-3.8.4-bin\conf"
+10) For Mac & Linux we have to execute "zkServer.sh" & for windows we have to execute "zkServer.cmd"
+11) To Start ZooKeeper server on windows use the following commands
+Commands Example:
+    -> D: {For changing the local drive from C to D drive}
+    -> cd /d D:\ApacheKafkaAndZookeeper\Zookeeper\apache-zookeeper-3.8.4-bin {(cd /d = change drive and directory together)}
+    -> cd ApacheKafkaAndZookeeper\Zookeeper\apache-zookeeper-3.8.4-bin {Then cd into your ZooKeeper folder}
+    -> .\bin\zkServer.cmd {Finally run ZooKeeper}
+12) To stop the ZooKeeper press "Ctrl + c" buttons on your keyboard
+13) To check if zookeeper server is up and running or not from another command prompt use below commands
+Commands Example:
+    -> Open a new CMD, go to ZooKeeper’s bin folder
+    -> Run command: cd /d D:\ApacheKafkaAndZookeeper\Zookeeper\apache-zookeeper-3.8.4-bin\bin
+    -> Use command: zkCli.cmd -server 127.0.0.1:2181 {After executing this command If ZooKeeper is running, you’ll see something like Connecting to 127.0.0.1:2181 Welcome to ZooKeeper!}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
