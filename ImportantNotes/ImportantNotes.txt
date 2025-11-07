@@ -34,8 +34,12 @@ Folder Name: kafka_2.13-4.1.0
 10) Configuration file "server.properties" is present inside the folder "\kafka_2.13-4.1.0\config\" We have to edit this file as per our requirement
 11) To start the kafka server on windows use the following commands
 Commands Example:
+    I) Start the Kafka Server Using Windows Command Prompt
     -> cd /d D:\ApacheKafkaAndZookeeper\Kafka\kafka_2.13-4.1.0\bin\windows {On Windows we have to execute "kafka-server-start.bat" file}
     -> .\bin\windows\kafka-server-start.bat .\config\server.properties
+    II Start Kafka Server Using Git Bash
+    -> cd /d/ApacheKafkaAndZookeeper/kafka_2.13-4.1.0
+    -> cmd.exe /d "./bin/windows/kafka-server-start.bat ./config/server.properties"
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 Zookeeper Download and Installation
@@ -60,8 +64,13 @@ Commands Example:
 12) To stop the ZooKeeper press "Ctrl + c" buttons on your keyboard
 13) To check if zookeeper server is up and running or not from another command prompt use below commands
 Commands Example:
+    I) Start Zookeeper Server Using Windows Command Prompt
     -> Open a new CMD, go to ZooKeeper’s bin folder
     -> Run command: cd /d D:\ApacheKafkaAndZookeeper\Zookeeper\apache-zookeeper-3.8.4-bin\bin
     -> Use command: zkCli.cmd -server 127.0.0.1:2181 {After executing this command If ZooKeeper is running, you’ll see something like Connecting to 127.0.0.1:2181 Welcome to ZooKeeper!}
+    II) Start the Kafka Server Using Git Bash
+    -> cd /d/ApacheKafkaAndZookeeper/Zookeeper/apache-zookeeper-3.8.4-bin
+    -> cmd.exe /c "./bin/zkServer.cmd"
+    -> zkServer.cmd
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
