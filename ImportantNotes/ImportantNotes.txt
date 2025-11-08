@@ -73,4 +73,53 @@ Commands Example:
     -> cmd.exe /c "./bin/zkServer.cmd"
     -> zkServer.cmd
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Start Kafka Server in Windows using Windows Subsystem for Linux (WSL)
+1) Open Windows Command Prompt & run it as administrator
+2) Then run command "wsl --install"
+3) Restart your PC when prompted. After restart, Ubuntu will open automatically for initial setup (create username & password).
+4) Open the new Command Prompt and start the Windows Subsystem For Linux Using Command "wsl", Then run command "sudo apt update"
+5) Now we have to Install the Java 17 inside Windows Subsystem for Linux for this run command "sudo apt install openjdk-17-jdk -y"
+6) Now Download the Apache Kafka using command "wget https://downloads.apache.org/kafka/4.1.0/kafka_2.13-4.1.0.tgz"
+7) Now Extract the Kafka with command "tar -xzf kafka_2.13-4.1.0.tgz"
+8) Now go inside the Extracted Kafka Directory by using command "cd kafka_2.13-4.1.0"
+9) Now inside the Kafka folder you will see the config folder, go inside the config folder using command "cd config"
+10) Now open the "server.properties" file inside the config folder using command "nano server.properties"
+11) Now Edit the server.properties file, Inside the (config/server.properties), remove or comment out the line: "controller.quorum.bootstrap.servers=localhost:9093"
+12) And add "controller.quorum.voters=1@localhost:9093" this line inside the server.properties file instead "controller.quorum.bootstrap.servers=localhost:9093"
+13) Save and exit from server.properties by using Keyboard keys "Ctrl + O  → Enter  → Ctrl + X"
+14) Again go to the root directory using command "cd .."
+15) Again go inside the Kafka folder with command "cd kafka_2.13-4.1.0"
+16) Then Generate the UUID for first time setup with command "bin/kafka-storage.sh random-uuid"
+17) Then setup the UUID with Command "bin/kafka-storage.sh format -t <UUID> -c config/server.properties", Example: bin/kafka-storage.sh format -t vlsbvTG0SBG5gWRH2lXzgg -c config/server.properties
+18) If you made any change inside the server.properties after setting up the UUID then you have to Format the storage again using the same UUID with command: "bin/kafka-storage.sh format -t <UUID> -c config/server.properties --standalone"
+19) Now finally start the Kafka server with command "bin/kafka-server-start.sh config/server.properties"
+20) Now to stop the Kafka server on windows Press Ctrl + C in the same terminal window or Open Task Manager → Details tab → find java.exe → End Task
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Important Nano shortcut cheat-sheet (what each footer command means and which keys to press)
+| Footer label (exact) |                   Keys (how to press) | Meaning / Action (detailed)                                                                                                                                                                                             |
+| -------------------- | ------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `^G Help`            |                              `Ctrl+G` | Open nano’s built-in help screen (shows keybindings and short documentation). Useful when you forget commands.                                                                                                          |
+| `^O Write Out`       |                              `Ctrl+O` | **Save** the current buffer to disk. Nano will prompt for filename (press Enter to accept). “Write Out” = write file out to disk.                                                                                       |
+| `^W Where Is`        |                              `Ctrl+W` | **Search** text: opens “Where Is” prompt to search forward for a string. After searching you can press Enter to find next, or use `Alt+W` for next.                                                                     |
+| `^K Cut`             |                              `Ctrl+K` | **Cut** the current line (or selection). Removed text is stored in nano’s cutbuffer (clipboard). Use `Ctrl+U` to paste it back.                                                                                         |
+| `^T Execute`         |                              `Ctrl+T` | Run an external command on the current buffer (often used for spellcheck if configured) or invoke the “Execute Command” prompt; behavior depends on build/config.                                                       |
+| `^C Location`        |                              `Ctrl+C` | Show current cursor location information (line number, column, byte offset). Handy to know where you are.                                                                                                               |
+| `M-U Undo`           |             `Alt+U` or `Esc` then `U` | **Undo** the last edit (reverse previous edit). Nano supports basic undo/redo.                                                                                                                                          |
+| `M-A Set Mark`       |             `Alt+A` or `Esc` then `A` | Set a mark (start selection). Move the cursor to another spot, then cut/copy to operate on the region. Acts like “start selecting here.”                                                                                |
+| `M-] To Bracket`     |             `Alt+]` or `Esc` then `]` | Jump to the matching bracket/brace/parenthesis for the one under or near the cursor. Useful in code to find matching `}` or `)`.                                                                                        |
+| `M-Q Previous`       |             `Alt+Q` or `Esc` then `Q` | In search/replace sequences this typically means “previous match” or go to previous item. (Behavior can vary slightly by nano build.)                                                                                   |
+| `^B Back`            |                              `Ctrl+B` | Move cursor **back one character** (same as left arrow). Useful in keyboard-only navigation.                                                                                                                            |
+| `^◂ Prev Word`       | `Ctrl+LeftArrow` (sometimes `Ctrl+◂`) | Move cursor to the **previous word** (word-wise left). Nano footer uses arrow glyphs; that means Ctrl + left arrow in most terminals.                                                                                   |
+| `^X Exit`            |                              `Ctrl+X` | **Exit** nano. If buffer has unsaved changes, nano will prompt to save (press `Y` to save or `N` to discard).                                                                                                           |
+| `^R Read File`       |                              `Ctrl+R` | Insert the contents of another file into the current buffer at the cursor position. Nano will prompt for the file name.                                                                                                 |
+| `^\ Replace`         |                              `Ctrl+\` | **Find and replace**: opens the replace prompt (search string, replacement, options). `\` is typed while holding Ctrl.                                                                                                  |
+| `^U Paste`           |                              `Ctrl+U` | **Paste** (uncut) the last cut/pasted text from nano’s cutbuffer at the cursor. Works after `Ctrl+K` or after copying.                                                                                                  |
+| `^J Justify`         |                              `Ctrl+J` | **Justify** paragraph: reflow the current paragraph to the configured fill width (wrap/format text neatly).                                                                                                             |
+| `^/ Go To Line`      |                `Ctrl+/` (or `Ctrl+_`) | **Go to line**: prompt to enter a line number, then move the cursor there. (Some terminals show this as `Ctrl+_`.)                                                                                                      |
+| `M-E Redo`           |             `Alt+E` or `Esc` then `E` | **Redo** an undone change (opposite of `Alt+U` undo). Nano keeps a simple undo/redo stack.                                                                                                                              |
+| `M-6 Copy`           |             `Alt+6` or `Esc` then `6` | **Copy** current line (or selected region) into nano’s cutbuffer (does not delete it). Use `Ctrl+U` to paste.                                                                                                           |
+| `^Q Where Was`       |                              `Ctrl+Q` | Shows where the last search occurred or is used as a “suspend/previous” key in some builds. (This one is a bit version-dependent; older nano used `Ctrl+Q` to suspend, newer show it as navigation for search history.) |
+| `M-W Next`           |             `Alt+W` or `Esc` then `W` | **Find next** occurrence of the last search (go forward to next match). Often used after `Ctrl+W`.                                                                                                                      |
+| `^F Forward`         |                              `Ctrl+F` | Move cursor **forward one character** (same as right arrow).                                                                                                                                                            |
+| `^▸ Next Word`       |                     `Ctrl+RightArrow` | Move cursor to the **next word** (word-wise right). Footer arrow icon indicates Ctrl+Right in most terminals.                                                                                                           |
 
