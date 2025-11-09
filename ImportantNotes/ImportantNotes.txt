@@ -123,4 +123,25 @@ Important Nano shortcut cheat-sheet (what each footer command means and which ke
 | `^F Forward`         |                              `Ctrl+F` | Move cursor **forward one character** (same as right arrow).                                                                                                                                                            |
 | `^▸ Next Word`       |                     `Ctrl+RightArrow` | Move cursor to the **next word** (word-wise right). Footer arrow icon indicates Ctrl+Right in most terminals.                                                                                                           |
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+Start Multiple Kafka Servers
+1) To run more than one kafka server we need new configuration files
+2) To start the multiple kafka servers we need a separate "server.properties" configuration file for each
+3) Go inside config folder and create the new file called "server-1.properties" and inside this change the value of "node.id"
+4) "node.id" value should be different for each server.properties file as this cannot be same for multiple servers
+5) Now you have to change the port number for kafka broker listener and controller listener syntax "listeners=PLAINTEXT://:9092,CONTROLLER://:9093"
+6) "listeners=PLAINTEXT://:9092,CONTROLLER://:9093" in this property syntax "PLAINTEXT://:9092" is the port for broker and "CONTROLLER://:9093" is the port for controller for different servers you have to change the port number
+7) Now change the property "controller.quorum.voters=1@localhost:9093"
+8) In this property "controller.quorum.voters=1@localhost:9093" value "1@localhost:9093" is defining the node number started at port "localhost:9093", So here inside "1@localhost:9093" this "1" is the value of "node.id" and "localhost:9093" is the controller server host port
+9) For example in your server.properties file if "node.id=2" & "listeners=PLAINTEXT://:9094,CONTROLLER://:9095" then your "controller.quorum.voters" value will be "2@localhost:9095"
+10) As you are deploying the multiple servers and you want them to be the group of nodes responsible for metadata management, similar to how ZooKeeper used to manage it then you have to pass all the values in each and every server.properties file for "controller.quorum.voters"
+11) Example of "controller.quorum.voters" syntax for 3 Kafka Servers containing 3 server.properties file, you have to give value as "controller.quorum.voters=1@localhost:9093,2@localhost:9095,3@localhost:9097" for all 3 servers, General syntax is "controller.quorum.voters=<node.id>@<host>:<controller-port>,<node.id>@<host>:<controller-port>,..."
+12) Now you have to change the value of "advertised.listeners" for other servers as well inside the server.properties
+13) Now for last you have to change the value of logs directory as well for different servers. "log.dir=/tmp/kraft-combined-logs"
+14) For "server-2.properties" the value of "log.dir" will be changed to "/tmp/server-2/kraft-combined-logs", Example: "log.dir=/tmp/server-2/kraft-combined-logs"
+15) Now we will prepare the storage directory for kafka cluster with multiple kafka servers
+16) Now generate the new UUID with command "bin/kafka-storage.sh random-uuid" and then pass that generated UUID value for each server.properties file as shown in below Example: bin/kafka-storage.sh format -t vlsbvTG0SBG5gWRH2lXzgg -c config/server.properties
+17) Example: For 3 server.properties file commands will be
+    -> I) bin/kafka-storage.sh format -t <UUID> -c config/server.properties
+    -> II) bin/kafka-storage.sh format -t <UUID> -c config/server-1.properties
+    -> III) bin/kafka-storage.sh format -t <UUID> -c config/server-2.properties
+Note: Pass the generated UUID value in place of the <UUID> place holder, Example:
