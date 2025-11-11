@@ -1,0 +1,32 @@
+Creating a new topic in Kafka Server with Kafka CLI (Command Line Interface)
+1) Open the windows command prompt and start the wsl (Windows Subsystem For Linux)
+2) Navigate to Kafka directory with command "cd kafka_2.13-4.1.0"
+3) Check if you are currently using the kafka_2.13-4.1.0 directory with "pwd" command
+4) Start the Kafka server using the command: bin/kafka-server-start.sh config/server.properties
+5) Open new command prompt and start the new "wsl" & navigate to the "cd kafka_2.13-4.1.0" again
+6) Then navigate to the bin directory with command "cd bin"
+7) Now run the command: "./kafka-topics.sh --create --topic <Name for your Kafka topic> --partitions <Specify your number of partitions> --replication-factor <Specify the number of replication factor> --bootstrap-server <Pass the Address of your running Kafka Server>"
+Example: "./kafka-topics.sh --create --topic topicOne" --partitions 3 --replication-factor 3 --bootstrap-server localhost:9092"
+If above command didn't worked then use the command: "./kafka-topics.sh --create --topic topicOne --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092"
+8) In above command we are creating the new kafka topic called "topicOne" which has 3 "partitions" and 3 "replication-factor" with server running on localhost:9092
+9) Important Note:
+    I) While Giving the topic name after (--topic <Name for your Kafka topic>) this command you should use the Business Specific Naming Convention
+    II) When you specify the number of partitions then, it is mandatory that your number of partitions should always be greater than number of consumers
+    III) Number of "partitions" should be greater than number of consumers, Once you specify the value then it is irreversible.
+    IV) Number of "replication-factor" should not be greater than the number of brokers present inside your cluster
+10) After topics are created now List down the topics in Kafka Server with command "./kafka-topics.sh --list --bootstrap-server localhost:9092"
+11) Now to see the topic description use the command: "./kafka-topics.sh --describe --bootstrap-server localhost:9092"
+12) Now to delete the Kafka topic use the command: "bin/kafka-topics.sh --delete --topic <your-topic-name> --bootstrap-server localhost:9092"
+Example: ./kafka-topics.sh --delete --topic topicOne --bootstrap-server localhost:9092
+./kafka-topics.sh --delete --topic test-topic --bootstrap-server localhost:9092
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Important commands related to the Kafka topic creation
+# List topics
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+# Create topic
+bin/kafka-topics.sh --create --topic test-topic --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
+# Describe topic
+bin/kafka-topics.sh --describe --topic test-topic --bootstrap-server localhost:9092
+# Delete topic
+bin/kafka-topics.sh --delete --topic test-topic --bootstrap-server localhost:9092
+------------------------------------------------------------------------------------------------------------------------------------------
