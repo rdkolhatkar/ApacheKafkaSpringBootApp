@@ -149,5 +149,6 @@ Note: Pass the generated UUID value in place of the <UUID> place holder:
 Common error encountered during kafka server initialization
 1) If you encountered the error as "java.lang.RuntimeException: No readable meta.properties files found."
 2) Then use the command : bin/kafka-storage.sh format   --config config/server.properties   --cluster-id $(bin/kafka-storage.sh random-uuid)
-3) After this command is successfully executes then run the command to start the kafka server : bin/kafka-server-start.sh config/server.properties
+3) Once above command is successful you will see this message in console "Formatting metadata directory /tmp/kraft-combined-logs with metadata.version 4.1-IV1."
+4) After this command is successfully executes then run the command to start the kafka server : bin/kafka-server-start.sh config/server.properties
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

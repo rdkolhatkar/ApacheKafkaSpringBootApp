@@ -30,3 +30,18 @@ bin/kafka-topics.sh --describe --topic test-topic --bootstrap-server localhost:9
 # Delete topic
 bin/kafka-topics.sh --delete --topic test-topic --bootstrap-server localhost:9092
 ------------------------------------------------------------------------------------------------------------------------------------------
+Apache Kafka CLI for Producers to send the message to Kafka topic
+1) Open the windows command prompt and start the wsl (Windows Subsystem For Linux)
+2) Navigate to Kafka directory with command "cd kafka_2.13-4.1.0"
+3) Check if you are currently using the kafka_2.13-4.1.0 directory with "pwd" command
+4) Open the bin directory using the command "cd bin"
+5) Now create a topic with command : ./kafka-topics.sh --create --topic topicOne --partitions 3 --replication-factor 1 --bootstrap-server localhost:9092
+6) Then run the command  "./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic topicOne"
+7) Then send message called "Hello World" to the topic by typing the message in the empty space of command prompt
+8) Important Note: If topic does not exists then Kafka will create the new topic by default if we set the value "auto.create.topics.enable=true" in server.properties
+9) After sending the message to kafka, console will keep open for sending more messages, to stop the messaging press "Ctrl + C" to exit
+10) Messages in the Kafka topic will be stored in the Key-Value Pairs, if we send message without key then key will be null
+11) Messages with same key will be stored in same partitions and if they are present in same partitions then that means they are in ordered manner
+12) To send messages with keys we need to add few additional properties in above command to enable it for key-value support
+13) Key-Value Pair Command: ./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic topicOne --property "parse.key=true" --property "key.separator=:"
+14) Now send the message as {firstName:Ratnakar} Here key=firstName & Value=Ratnakar
