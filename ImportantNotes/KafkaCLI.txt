@@ -45,3 +45,13 @@ Apache Kafka CLI for Producers to send the message to Kafka topic
 12) To send messages with keys we need to add few additional properties in above command to enable it for key-value support
 13) Key-Value Pair Command: ./kafka-console-producer.sh --bootstrap-server localhost:9092 --topic topicOne --property "parse.key=true" --property "key.separator=:"
 14) Now send the message as {firstName:Ratnakar} Here key=firstName & Value=Ratnakar
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Fetch and Display the messages from Kafka topic with Consumers
+1) Command Example: bin/kafka-console-consumer.sh --topic my-topic --from-beginning --bootstrap-server-localhost:9092
+2) Navigate to Kafka directory with command "cd kafka_2.13-4.1.0"
+3) Check if you are currently using the kafka_2.13-4.1.0 directory with "pwd" command
+4) Open the bin directory using the command "cd bin"
+5) Then use the command: ./kafka-console-consumer.sh --topic topicOne --from-beginning --bootstrap-server-localhost:9092
+6) In above command "--from-beginning" syntax will display all the messages in real time for all the producers
+7) In Kafka once consumer consumes the message it does not destroy it keeps the message in the topic so that other consumers can consume it as well
+8) As soon as message is sent to topic all consumers who are subscribed to it will consume the message and display it on the console
