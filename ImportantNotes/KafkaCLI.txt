@@ -55,3 +55,13 @@ Fetch and Display the messages from Kafka topic with Consumers
 6) In above command "--from-beginning" syntax will display all the messages in real time for all the producers
 7) In Kafka once consumer consumes the message it does not destroy it keeps the message in the topic so that other consumers can consume it as well
 8) As soon as message is sent to topic all consumers who are subscribed to it will consume the message and display it on the console
+9) To consume only new messages from Kafka topic we removed the "--from-beginning" this command from above command, So our new command will be ./kafka-console-consumer.sh --topic topicOne --bootstrap-server localhost:9092
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Consuming Key-Value Pair Messages from Kafka
+1) By default consumer only read the value only
+2) To read the messages that sent as Key-Value Pairs modify the above command as : ./kafka-console-consumer.sh --topic topicOne --from-beginning --bootstrap-server localhost:9092 --property print.key=true
+3) To hide the values and print only Keys use the command as: ./kafka-console-consumer.sh --topic topicOne --from-beginning --bootstrap-server localhost:9092 --property print.value=false
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Read the messages from topic in the order
+1) To read the messages from topic in ordered manner use the command : ./kafka-console-consumer.sh --topic topicOne --from-beginning --bootstrap-server localhost:9092 --property print.key=true
+2) Messages with same key will always be published in order while messages with different key will be published randomly
