@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'org.ratnakar.kafka'
@@ -9,9 +11,41 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    springBootVersion = '3.3.5'
+    lombokVersion = '1.18.32'
+    junitVersion = '5.10.0'
+    h2dbVersion = '2.3.232'
+    springbootStarterJdbc = '3.3.5'
+    springJdbcVersion = '6.2.10'
+    springbootStarterDataJdbc = '3.5.5'
+    postgreSqlDriver='42.7.7'
+    jakartaServerlet = '6.0.0'
+    tomcatEmbededCore = '10.1.30'
+    springWeb = '7.0.0'
+    servletApi = '6.0.0'
+    tomcatJasper = '10.1.30'
+}
+
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation 'org.springframework.kafka:spring-kafka' // Apache Kafka Dependency for spring-boot
+    implementation("org.apache.tomcat.embed:tomcat-embed-el:${tomcatEmbededCore}")
+    implementation("org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbededCore}")
+    implementation "com.h2database:h2:${h2dbVersion}"
+    implementation("org.postgresql:postgresql:${postgreSqlDriver}")
+    implementation("org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbededCore}")
+    implementation("org.apache.tomcat:tomcat-jasper:${tomcatJasper}")
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    compileOnly("jakarta.servlet:jakarta.servlet-api:${jakartaServerlet}")
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
 
 test {

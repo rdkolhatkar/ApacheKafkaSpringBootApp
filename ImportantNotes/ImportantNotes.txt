@@ -152,3 +152,12 @@ Common error encountered during kafka server initialization
 3) Once above command is successful you will see this message in console "Formatting metadata directory /tmp/kraft-combined-logs with metadata.version 4.1-IV1."
 4) After this command is successfully executes then run the command to start the kafka server : bin/kafka-server-start.sh config/server.properties
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Add Kafka Properties in application.properties of Spring-Boot Project
+1) spring.kafka.bootstrap-servers=localhost:9092
+2) spring.kafka.consumer.group-id=my-group
+3) spring.kafka.consumer.auto-offset-reset=earliest
+4) spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+5) spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+6) spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+7) spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
