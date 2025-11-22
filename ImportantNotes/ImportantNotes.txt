@@ -161,3 +161,23 @@ Add Kafka Properties in application.properties of Spring-Boot Project
 6) spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
 7) spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Make WSL (Ubuntu) accessible from Windows to publish event in the kafka_2.13-4.1.0
+1) Open windows command prompt and write the command to Find Your WSL IP
+2) The command to Find Your WSL IP is "wsl hostname -I"
+3) After opening the wsl you can find the hostname as well for that first run "wsl" to open the wsl and then run command "hostname -I"
+4) Then you will get the host ip like this 172.30.177.4( This is dummy IP)
+5) Copy the routable IP to advertise (WSL IP) to windows system
+6) Update Your Kafka "server.properties" with the copied WSL IP address
+7) Open config folder with command "cd config" & then run command "nano server.properties"
+8) Inside the server.properties we have to replace "advertised.listeners" & "listeners" properties
+9) Add the below updated values for properties:
+    -> listeners=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+    -> advertised.listeners=PLAINTEXT://172.30.177.4:9092,CONTROLLER://172.30.177.4:9093
+10) Delete Old KRaft Metadata with command "rm -rf /tmp/kraft-combined-logs"
+11) Then run command to generate new UUID metadata "bin/kafka-storage.sh format   --config config/server.properties   --cluster-id $(bin/kafka-storage.sh random-uuid)"
+12) Start the kafka server with command "bin/kafka-server-start.sh config/server.properties"
+13) Open the new windows command prompt & start new Ubuntu using "wsl" command to Test Kafka from Windows and run the command "kafkacat -b 172.30.177.3:9092 -L"
+14) Update Spring Boot Application.properties file  with below configurations
+    -> spring.kafka.bootstrap-servers=172.30.177.4:9092
+    -> spring.kafka.producer.bootstrap-servers=172.30.177.4:9092
+    -> spring.kafka.admin.bootstrap-servers=172.30.177.4:9092
