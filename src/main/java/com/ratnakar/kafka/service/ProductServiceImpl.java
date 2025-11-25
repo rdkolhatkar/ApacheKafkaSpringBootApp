@@ -45,6 +45,7 @@ public class ProductServiceImpl implements ProductService{
             }
         });
         future.join();
+        log.info("**** Returning product id ****");
         return productId;
     }
 }

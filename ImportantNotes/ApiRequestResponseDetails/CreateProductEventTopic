@@ -1,0 +1,13 @@
+HTTP Request : POST
+APP_BASE_URL : http://localhost:8090/products/create
+Request Body Type : json
+Request Body :
+{
+    "title":"iPhone 11",
+    "price":800,
+    "quantity":19
+}
+Response Code : 200 OK
+Response Body Content-Type: application/json
+Response Body :
+e7ba88a0-8ca0-4881-af27-a884cefdc6ec

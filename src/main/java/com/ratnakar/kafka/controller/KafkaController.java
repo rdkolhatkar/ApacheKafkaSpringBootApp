@@ -19,7 +19,7 @@ public class KafkaController {
         this.productService = productService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<String> createProduct(@RequestBody ProductRestModel productRestModel){
         String productID = productService.createProduct(productRestModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(productID);

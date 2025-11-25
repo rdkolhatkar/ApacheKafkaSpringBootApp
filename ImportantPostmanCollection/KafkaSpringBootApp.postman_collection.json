@@ -1,0 +1,40 @@
+{
+	"info": {
+		"_postman_id": "eb37fddc-b591-4131-9968-444f32a67c5a",
+		"name": "KafkaSpringBootApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19864596",
+		"_collection_link": "https://warped-equinox-530609.postman.co/workspace/API_Automation_Testing~291dac4f-80e4-4c02-8fe9-ca5282612efe/collection/19864596-eb37fddc-b591-4131-9968-444f32a67c5a?action=share&source=collection_link&creator=19864596"
+	},
+	"item": [
+		{
+			"name": "createProduct",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\":\"iPhone 11\",\r\n    \"price\":800,\r\n    \"quantity\":19\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8090/products/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"products",
+						"create"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

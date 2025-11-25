@@ -66,3 +66,5 @@ Consuming Key-Value Pair Messages from Kafka
 Read the messages from topic in the order
 1) To read the messages from topic in ordered manner use the command : ./kafka-console-consumer.sh --topic topicOne --from-beginning --bootstrap-server localhost:9092 --property print.key=true
 2) Messages with same key will always be published in order while messages with different key will be published randomly
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+./kafka-console-consumer.sh --topic product-created-events-topic --from-beginning --bootstrap-server 172.30.177.3:9092 --property print.key=true
