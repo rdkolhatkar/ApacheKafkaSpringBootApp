@@ -1,7 +1,9 @@
 package com.ratnakar.kafka.controller;
 
+import com.ratnakar.kafka.exception.ErrorMessage;
 import com.ratnakar.kafka.model.ProductRestModel;
 import com.ratnakar.kafka.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
+@Slf4j
 @RestController
 @RequestMapping("/products")
 public class KafkaController {
@@ -20,8 +25,14 @@ public class KafkaController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createProduct(@RequestBody ProductRestModel productRestModel){
-        String productID = productService.createProduct(productRestModel);
+    public ResponseEntity<Object> createProduct(@RequestBody ProductRestModel productRestModel) {
+        String productID = null;
+        try {
+            productID = productService.createProduct(productRestModel);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage(new Date(), e.getMessage(), "/products/create"));
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(productID);
     }
 }
