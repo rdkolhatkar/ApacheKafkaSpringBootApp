@@ -49,10 +49,26 @@ public class ProductServiceImpl implements ProductService{
         */
 
         // future.join() blocks the current thread until the asynchronous task completes and returns the result, throwing only unchecked exceptions, making it a simpler alternative to get() without try-catch.
-        log.info("**** Returning product id ****");
+        log.info("**** Before publishing the product created event ****");
         SendResult<String, ProductCreatedEvent> result =
                 kafkaTemplate.send("product-created-events-topic", productId, productCreatedEvent).get();
         // This code sends the Kafka message and waits for Kafka’s acknowledgment, making the operation synchronous and giving you metadata about the sent record.
+        // From the result we can read the 1) Topic Name 2) Partition 3) Offset 4) Timestamp
+        // 1) Topic Name : To verify message is stored in which topic
+        // 2) Partition : To verify partitions for debugging and monitoring the message stream
+        // 3) Offset : To trace the position of record in the partition or position tracking of record
+        // 4) Timestamp: To measure the latency or throughput of the producer
+
+        // Printing the Partition
+        log.info("Partition : "+ result.getRecordMetadata().partition());
+        // Printing the Topic
+        log.info("Topic : "+ result.getRecordMetadata().topic());
+        // Printing the Offset
+        log.info("Offset : "+ result.getRecordMetadata().offset());
+        // Printing the Timestamp
+        log.info("Timestamp : "+ result.getRecordMetadata().timestamp());
+
+        log.info("**** Returning product id ****");
         return productId;
     }
 }
