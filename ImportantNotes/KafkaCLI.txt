@@ -68,3 +68,14 @@ Read the messages from topic in the order
 2) Messages with same key will always be published in order while messages with different key will be published randomly
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ./kafka-console-consumer.sh --topic product-created-events-topic --from-beginning --bootstrap-server 172.30.177.3:9092 --property print.key=true
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+To create the minimum amount of insync replicas property at the time of creating new topic then we will use the following command
+1) Command for creating new topic with insync replicas:
+./bin/kafka-topics.sh --create --topic insync-topic --partitions 1 --replication-factor 2 --bootstrap-server 172.30.177.3:9092 --config min.insync.replicas=2
+2) Command for creating insync replicas for existing topic:
+./bin/kafka-configs.sh --bootstrap-server 172.30.177.3:9092 --alter --entity-type topics --entity-name product-created-events-topic --add-config min.insync.replicas=2
+3) Run the describe topic command to check if our topic replicas are updated successfully
+./bin/kafka-topics.sh --describe --bootstrap-server 172.30.177.3:9092
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Create new topic with insync replicas
+./bin/kafka-topics.sh --create --topic insync-topic --partitions 1 --replication-factor 1 --bootstrap-server 172.30.177.3:9092 --config min.insync.replicas=1
