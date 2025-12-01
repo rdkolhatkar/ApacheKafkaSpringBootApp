@@ -68,6 +68,21 @@ public class ProductServiceImpl implements ProductService{
         // Printing the Timestamp
         log.info("Timestamp : "+ result.getRecordMetadata().timestamp());
 
+        /*
+        // Sending data to insync-topic
+        SendResult<String, ProductCreatedEvent> insyncTopicResult =
+                kafkaTemplate.send("insync-topic", productId, productCreatedEvent).get();
+
+        // Printing the Partition
+        log.info("Partition : "+ insyncTopicResult.getRecordMetadata().partition());
+        // Printing the Topic
+        log.info("Topic : "+ insyncTopicResult.getRecordMetadata().topic());
+        // Printing the Offset
+        log.info("Offset : "+ insyncTopicResult.getRecordMetadata().offset());
+        // Printing the Timestamp
+        log.info("Timestamp : "+ insyncTopicResult.getRecordMetadata().timestamp());
+        */
+
         log.info("**** Returning product id ****");
         return productId;
     }
