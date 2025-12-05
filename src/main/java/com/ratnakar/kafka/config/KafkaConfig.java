@@ -16,6 +16,7 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
+
     // Injects the value of "spring.kafka.producer.bootstrap-servers" from application.properties
     @Value("${spring.kafka.producer.bootstrap-servers}")
     public String bootstrapServers;
@@ -44,6 +45,15 @@ public class KafkaConfig {
     @Value("${spring.kafka.producer.properties.request.timeout.ms}")
     public String requestTimeout;
 
+    // Injects idempotence setting (true/false)
+    // When enabled, ensures producer never sends duplicate messages and maintains message order.
+    @Value("${spring.kafka.producer.properties.enable.idempotence}")
+    public boolean idempotence;
+
+    // Injects the max number of in-flight requests allowed per TCP connection.
+    // Must be <= 5 when idempotence is enabled to avoid out-of-order message delivery.
+    @Value("${spring.kafka.producer.properties.max.in.flight.requests.per.connection}")
+    private Integer inflightRequests;
 
     /**
      * Creates a map of Kafka Producer configurations.
@@ -65,7 +75,7 @@ public class KafkaConfig {
         // Serializer used to convert the key into byte[] before sending to Kafka
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
 
-        // Serializer used to convert the value (ProductCreatedEvent) into JSON/byte[]
+        // Serializer used to convert the value (ProductCreatedEvent) into JSON/byte[].
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
 
         // Acknowledgement level (all replicas must confirm)
@@ -80,10 +90,18 @@ public class KafkaConfig {
         // Maximum time producer waits for broker response before timing out
         config.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, requestTimeout);
 
+        // Enables idempotent producer to prevent duplicate messages
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, idempotence);
+
+        // Maximum in-flight requests to allow at the same time
+        // Must be <= 5 when idempotence is enabled to maintain ordering
+        config.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, inflightRequests);
+
+        // config.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+
         // Returns the complete producer configuration map
         return config;
     }
-
 
     /**
      * Creates a ProducerFactory bean.
@@ -95,7 +113,6 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
-
     /**
      * Creates a KafkaTemplate bean.
      * KafkaTemplate is the main class used to send messages to Kafka topics.
@@ -103,7 +120,7 @@ public class KafkaConfig {
      */
     @Bean
     KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate() {
-        return new KafkaTemplate<String, ProductCreatedEvent>(producerFactory());
+        return new KafkaTemplate<>(producerFactory());
     }
 
     /**
@@ -117,16 +134,12 @@ public class KafkaConfig {
      */
     @Bean
     public NewTopic createTopic() {
-
-        // TopicBuilder is a utility class provided by Spring Kafka
-        // to build a Kafka topic definition in a fluent, readable way.
         return TopicBuilder
-                .name("product-created-events-topic")   // The name of the Kafka topic to create
-                .partitions(2)                         // How many partitions the topic will have
-                .replicas(1)                           // How many replicas each partition will have
-                .configs(Map.of("min.insync.replicas", "1")) // Extra topic config
-                .build();                               // Builds and returns a NewTopic instance
+                .name("product-created-events-topic")
+                .partitions(2)
+                .replicas(1)
+                .configs(Map.of("min.insync.replicas", "1"))
+                .build();
     }
-
 
 }
