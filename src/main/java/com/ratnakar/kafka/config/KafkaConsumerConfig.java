@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;                          // To 
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;                   // Factory to create Kafka consumer instances
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;     // Default implementation for creating consumers
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;  // Converts JSON messages to Java Objects
 
 import java.util.HashMap;
@@ -79,8 +80,46 @@ public class KafkaConsumerConfig {
          * Deserializer to convert message VALUE bytes → Java Object.
          * JsonDeserializer converts JSON into Java POJO automatically.
          */
+        /*
         config.put(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class
+        );
+        */
+
+        /*
+         This tells Kafka Consumer to use ErrorHandlingDeserializer
+         as the PRIMARY deserializer for message values.
+         Why this is important:
+         ----------------------
+         If deserialization of a Kafka message fails (for example:
+          - invalid JSON
+          - schema mismatch
+          - corrupted message),
+         the consumer will NOT crash.
+         Instead, the error is captured and handled gracefully
+         (e.g., sent to a Dead Letter Topic or logged).
+         */
+
+        config.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                ErrorHandlingDeserializer.class
+        );
+
+        /*
+         This tells ErrorHandlingDeserializer which ACTUAL deserializer
+         it should delegate the work to.
+         Here, we specify JsonDeserializer, meaning:
+          - Kafka message value is expected to be JSON
+          - JSON will be converted into a Java object
+         Without this configuration:
+         ----------------------------
+         ErrorHandlingDeserializer would not know how to deserialize
+         the message and would fail at runtime.
+         */
+
+        config.put(
+                ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
                 JsonDeserializer.class
         );
 
