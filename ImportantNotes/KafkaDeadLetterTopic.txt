@@ -1,0 +1,272 @@
+========================================================
+KAFKA DEAD LETTER TOPIC (DLT) — COMPLETE NOTES
+========================================================
+
+1. WHAT IS DLT IN KAFKA?
+-----------------------
+
+DLT stands for "Dead Letter Topic".
+
+A Dead Letter Topic is a special Kafka topic where messages are sent
+when a consumer fails to process them successfully even after retries.
+
+Kafka itself does NOT create DLT automatically.
+DLT is usually managed by frameworks like Spring Kafka.
+
+DLT helps:
+- Avoid infinite retry loops
+- Prevent consumer crashes
+- Store failed messages safely
+- Debug and replay messages later
+
+--------------------------------------------------------
+
+2. WHY DLT IS USED?
+------------------
+
+Messages can fail because of:
+- Invalid JSON format
+- Deserialization errors
+- Business validation failures
+- NullPointerException
+- Schema mismatch
+- Downstream service failure
+
+Instead of blocking the consumer, the message is sent to DLT.
+
+--------------------------------------------------------
+
+3. WHAT DOES .DLT OR -dlt MEAN?
+------------------------------
+
+.DLT or -dlt is NOT a Kafka keyword.
+It is only a naming convention.
+
+Examples:
+- product-created-events-topic.DLT
+- product-created-events-topic-dlt
+
+Both mean the same thing:
+This topic contains FAILED messages from the main topic.
+
+Spring Kafka default naming:
+<original-topic>.DLT
+
+--------------------------------------------------------
+
+4. YOUR DLT CONSUMER COMMANDS
+----------------------------
+
+Kafka allows any topic naming convention.
+.DLT and -dlt are just naming styles.
+
+Both commands below are VALID and do the SAME job.
+
+Command using .DLT (Spring Kafka Default):
+
+./bin/kafka-console-consumer.sh \
+--topic product-created-events-topic.DLT \
+--from-beginning \
+--bootstrap-server 172.30.177.3:9092 \
+--property print.key=true
+
+Command using -dlt (Custom / Team-defined naming):
+
+./bin/kafka-console-consumer.sh \
+--topic product-created-events-topic-dlt \
+--from-beginning \
+--bootstrap-server 172.30.177.3:9092 \
+--property print.key=true
+
+Meaning of both commands:
+- Read messages from the Dead Letter Topic
+- Show messages that FAILED processing
+- Print message key and value
+- Read all messages from beginning
+
+--------------------------------------------------------
+
+5. DIFFERENCE BETWEEN .DLT AND -dlt
+----------------------------------
+
+There is NO functional difference between .DLT and -dlt.
+
+Kafka treats both as NORMAL topic names.
+
+The difference is ONLY in naming convention.
+
+.DLT
+----
+- Default naming used by Spring Kafka
+- Automatically created by Spring Retryable Topics
+- Uppercase by convention
+- Example:
+  product-created-events-topic.DLT
+- Recommended when using Spring Kafka
+
+-dlt
+----
+- Custom naming chosen by teams
+- Often used in non-Spring setups
+- Lowercase and hyphen-based
+- Example:
+  product-created-events-topic-dlt
+- Must be created/configured manually
+
+Important Rule:
+Kafka does NOT understand DLT by name.
+Kafka only understands topics.
+The consumer framework decides how DLT is used.
+
+--------------------------------------------------------
+
+6. WHY AM I SEEING STRANGE TEXT IN DLT?
+--------------------------------------
+
+Example value seen in DLT:
+
+e3NkYnBpZGZpdWZ1ZnVlfQ==
+
+This value is NOT encrypted.
+This value is Base64 encoded.
+
+Kafka stores data as byte arrays.
+Console consumer prints raw data.
+
+--------------------------------------------------------
+
+7. WHAT IS BASE64?
+-----------------
+
+Base64 is an encoding technique.
+It converts binary data into readable text.
+
+Base64 is commonly used in:
+- Kafka messages
+- HTTP payloads
+- Tokens
+- Binary-safe transport
+
+IMPORTANT:
+Base64 is NOT encryption.
+Anyone can decode it.
+
+--------------------------------------------------------
+
+8. HOW TO DECODE BASE64 VALUE
+----------------------------
+
+Encoded value:
+e3NkYnBpZGZpdWZ1ZnVlfQ==
+
+--------------------------------------------------------
+METHOD 1: ONLINE DECODER (EASIEST)
+--------------------------------------------------------
+
+Steps:
+1. Copy the value
+2. Open any Base64 decoder website
+3. Paste the value
+4. Click Decode
+
+Decoded output:
+{"sdbpidfiufuue"}
+
+--------------------------------------------------------
+METHOD 2: USING LINUX / UNIX TERMINAL
+--------------------------------------------------------
+
+Command:
+echo "e3NkYnBpZGZpdWZ1ZnVlfQ==" | base64 --decode
+
+Output:
+{"sdbpidfiufuue"}
+
+--------------------------------------------------------
+METHOD 3: USING JAVA CODE
+--------------------------------------------------------
+
+Java example:
+
+import java.util.Base64;
+
+public class DecodeExample {
+    public static void main(String[] args) {
+        String encoded = "e3NkYnBpZGZpdWZ1ZnVlfQ==";
+        byte[] decodedBytes = Base64.getDecoder().decode(encoded);
+        String decoded = new String(decodedBytes);
+        System.out.println(decoded);
+    }
+}
+
+Output:
+{"sdbpidfiufuue"}
+
+--------------------------------------------------------
+
+9. WHY DLT MESSAGES ARE BASE64 ENCODED
+-------------------------------------
+
+Because:
+- Kafka works with byte[]
+- Serialization failed before conversion
+- Raw bytes are stored in DLT
+- Console consumer prints encoded data
+
+Spring Kafka DLT often contains raw payload
+when deserialization fails.
+
+--------------------------------------------------------
+
+10. HOW TO VIEW DLT MESSAGE PROPERLY
+-----------------------------------
+
+Option 1:
+Use correct deserializer (String / JSON)
+
+Option 2:
+Manually decode Base64
+
+Option 3:
+Replay message after fixing code
+
+--------------------------------------------------------
+
+11. OPEN-SOURCE TOOLS FOR BASE64 DECODING
+----------------------------------------
+
+Free tools:
+1. https://www.base64decode.org/
+2. https://gchq.github.io/CyberChef/
+3. https://www.rapidtables.com/convert/number/base-64-to-text.html
+
+Browser JavaScript:
+atob("e3NkYnBpZGZpdWZ1ZnVlfQ==")
+
+--------------------------------------------------------
+
+12. REAL PRODUCTION USE OF DLT
+-----------------------------
+
+DLT is used to:
+- Analyze failures
+- Debug production issues
+- Fix bad data
+- Replay messages
+- Track producer issues
+- Improve system stability
+
+--------------------------------------------------------
+
+13. INTERVIEW ONE-LINER
+----------------------
+
+A Dead Letter Topic (DLT) is a Kafka topic used
+to store messages that fail consumer processing
+after retries, allowing the system to continue
+without message loss.
+
+--------------------------------------------------------
+
+END OF NOTES
+========================================================

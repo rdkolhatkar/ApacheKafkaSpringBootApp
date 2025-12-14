@@ -83,3 +83,8 @@ Create new topic with insync replicas
 Idempotent producer:
 An idempotent producer makes sure that each message is written once and only once to a Kafka topic partition, even when the producer internally retries sending that message.
 In Apache Kafka, an idempotent producer is a Kafka producer configured to guarantee exactly-once write semantics per partition, ensuring that duplicate messages are not written, even if retries happen due to network issues, timeouts, or broker failures.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Kafka Producer & Consumer Script for error handling testing
+1) ./bin/kafka-console-producer.sh --bootstrap-server 172.30.177.3:9092 --topic product-created-events-topic --property "parse.key=true" --property "key.separator=:"
+2) ./bin/kafka-console-consumer.sh --topic product-created-events-topic --from-beginning --bootstrap-server 172.30.177.3:9092 --property print.key=true
+3) For Dead Letter topic please refer the "KafkaDeadLetterTopic.txt" document

@@ -1,19 +1,55 @@
 package com.ratnakar.kafka.config;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;                // Kafka consumer configuration keys
-import org.apache.kafka.common.serialization.StringDeserializer;       // Deserializer to convert Kafka key bytes → String
+// ========================= IMPORTS EXPLANATION =========================
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+// Provides Kafka consumer configuration keys like bootstrap servers, group id, deserializers, etc.
+
+import org.apache.kafka.clients.producer.ProducerConfig;
+// Provides Kafka producer configuration keys like serializers, retries, acks, etc.
+
+import org.apache.kafka.common.serialization.StringDeserializer;
+// Deserializes Kafka message KEY from byte[] into Java String
+
+import org.apache.kafka.common.serialization.StringSerializer;
+// Serializes Java String into byte[] before sending message KEY to Kafka
+
 import org.springframework.beans.factory.annotation.Autowired;
+// Enables dependency injection of Spring-managed beans
+
 import org.springframework.context.annotation.Bean;
+// Marks a method as a Spring Bean definition
+
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;                          // To read properties from application.properties
+// Marks this class as a configuration class for Spring IoC container
+
+import org.springframework.core.env.Environment;
+// Used to read values from application.properties or application.yml
+
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;                   // Factory to create Kafka consumer instances
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;     // Default implementation for creating consumers
+// Factory that creates Kafka listener containers with support for concurrency
+
+import org.springframework.kafka.core.*;
+// Contains core Kafka components like ConsumerFactory, ProducerFactory, KafkaTemplate
+
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+// Publishes failed messages to a Dead Letter Topic (DLT)
+
+import org.springframework.kafka.listener.DefaultErrorHandler;
+// Central error handling mechanism for Kafka consumers
+
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
-import org.springframework.kafka.support.serializer.JsonDeserializer;  // Converts JSON messages to Java Objects
+// Wraps real deserializers to gracefully handle deserialization errors
+
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+// Converts JSON byte[] messages into Java POJOs
+
+import org.springframework.kafka.support.serializer.JsonSerializer;
+// Converts Java objects into JSON before publishing to Kafka
 
 import java.util.HashMap;
 import java.util.Map;
+// Used to store Kafka configuration key-value pairs
 
 /**
  * @Configuration
@@ -25,13 +61,14 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     /**
-     * @Autowired Environment
-     * -----------------------
-     * Environment allows us to read values from application.properties
-     * Example:
-     * spring.kafka.consumer.bootstrap-servers
-     * spring.kafka.consumer.group-id
-     * spring.kafka.consumer.properties.spring.json.trusted.packages
+     * Injects Spring's Environment object.
+     *
+     * This allows reading configuration values dynamically from:
+     * - application.properties
+     * - application.yml
+     * - environment variables
+     *
+     * This avoids hardcoding Kafka configuration values in Java code.
      */
     @Autowired
     Environment environment;
@@ -50,14 +87,13 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
 
-        // Map that stores Kafka consumer configuration properties
+        // Stores Kafka consumer configuration as key-value pairs
         Map<String, Object> config = new HashMap<>();
 
         /**
-         * BOOTSTRAP_SERVERS_CONFIG
-         * ------------------------
-         * The Kafka broker addresses the consumer should connect to.
-         * e.g. localhost:9092
+         * Registers Kafka broker addresses.
+         *
+         * Without this, the consumer would not know where Kafka is running.
          */
         config.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -65,9 +101,9 @@ public class KafkaConsumerConfig {
         );
 
         /**
-         * KEY_DESERIALIZER_CLASS_CONFIG
-         * -----------------------------
-         * Deserializer to convert message KEY bytes → String.
+         * Configures deserialization of Kafka message keys.
+         *
+         * Kafka sends keys as byte[], so StringDeserializer converts them to String.
          */
         config.put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -77,60 +113,36 @@ public class KafkaConsumerConfig {
         /**
          * VALUE_DESERIALIZER_CLASS_CONFIG
          * --------------------------------
-         * Deserializer to convert message VALUE bytes → Java Object.
-         * JsonDeserializer converts JSON into Java POJO automatically.
+         * Instead of using JsonDeserializer directly, we use
+         * ErrorHandlingDeserializer as a wrapper.
+         *
+         * WHY?
+         * - Prevents consumer crashes due to malformed JSON
+         * - Captures deserialization exceptions
+         * - Allows failed messages to be sent to DLT
          */
-        /*
-        config.put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                JsonDeserializer.class
-        );
-        */
-
-        /*
-         This tells Kafka Consumer to use ErrorHandlingDeserializer
-         as the PRIMARY deserializer for message values.
-         Why this is important:
-         ----------------------
-         If deserialization of a Kafka message fails (for example:
-          - invalid JSON
-          - schema mismatch
-          - corrupted message),
-         the consumer will NOT crash.
-         Instead, the error is captured and handled gracefully
-         (e.g., sent to a Dead Letter Topic or logged).
-         */
-
         config.put(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 ErrorHandlingDeserializer.class
         );
 
-        /*
-         This tells ErrorHandlingDeserializer which ACTUAL deserializer
-         it should delegate the work to.
-         Here, we specify JsonDeserializer, meaning:
-          - Kafka message value is expected to be JSON
-          - JSON will be converted into a Java object
-         Without this configuration:
-         ----------------------------
-         ErrorHandlingDeserializer would not know how to deserialize
-         the message and would fail at runtime.
+        /**
+         * Specifies the actual deserializer to be used internally
+         * by ErrorHandlingDeserializer.
+         *
+         * JsonDeserializer converts JSON payload into Java objects.
          */
-
         config.put(
                 ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
                 JsonDeserializer.class
         );
 
         /**
-         * TRUSTED_PACKAGES
-         * ----------------
-         * For security reasons, Kafka will only deserialize objects
-         * from trusted packages.
+         * Defines which Java packages are allowed for deserialization.
          *
-         * Example property:
-         * spring.kafka.consumer.properties.spring.json.trusted.packages=com.ratnakar.kafka.model
+         * SECURITY REASON:
+         * - Prevents deserialization attacks
+         * - Only trusted packages are allowed to be converted into objects
          */
         config.put(
                 JsonDeserializer.TRUSTED_PACKAGES,
@@ -138,12 +150,11 @@ public class KafkaConsumerConfig {
         );
 
         /**
-         * GROUP_ID_CONFIG
-         * ----------------
-         * Consumer group ID - all consumers with the same group ID
-         * share the same partition messages.
+         * Defines Kafka consumer group ID.
          *
-         * Essential for load balancing.
+         * Use case:
+         * - Enables load balancing across multiple consumer instances
+         * - Ensures message is processed by only one consumer in the group
          */
         config.put(
                 ConsumerConfig.GROUP_ID_CONFIG,
@@ -151,9 +162,10 @@ public class KafkaConsumerConfig {
         );
 
         /**
-         * DefaultKafkaConsumerFactory
-         * ----------------------------
-         * Creates Kafka Consumer instance using above configuration.
+         * Creates a Kafka ConsumerFactory using the above configuration.
+         *
+         * Spring Kafka uses this factory internally to create consumers
+         * whenever a @KafkaListener starts.
          */
         return new DefaultKafkaConsumerFactory<>(config);
     }
@@ -161,32 +173,122 @@ public class KafkaConsumerConfig {
     /**
      * kafkaListenerContainerFactory()
      * --------------------------------
-     * This factory creates the listener containers that power @KafkaListener.
+     * Creates listener containers that power @KafkaListener.
      *
-     * - It uses the ConsumerFactory defined above.
-     * - Spring will automatically use this factory for all KafkaListeners.
-     *
-     * @Bean ensures Spring manages it.
+     * This factory:
+     * - Manages consumer threads
+     * - Handles retries and failures
+     * - Integrates error handling and DLT support
      */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object>
-    kafkaListenerContainerFactory(ConsumerFactory<String, Object> consumerFactory) {
+    kafkaListenerContainerFactory(
+            ConsumerFactory<String, Object> consumerFactory,
+            KafkaTemplate<String, Object> kafkaTemplateConfig) {
 
         /**
-         * ConcurrentKafkaListenerContainerFactory
-         * ---------------------------------------
-         * Allows multi-threaded Kafka consumer processing.
-         * Example:
-         * factory.setConcurrency(3);
-         * → 3 threads will process Kafka partitions in parallel.
+         * Error handler that:
+         * - Catches consumer exceptions
+         * - Publishes failed messages to Dead Letter Topic (DLT)
+         *
+         * DeadLetterPublishingRecoverer uses KafkaTemplate
+         * to send messages to a predefined DLT.
+         */
+        DefaultErrorHandler errorHandler =
+                new DefaultErrorHandler(
+                        new DeadLetterPublishingRecoverer(kafkaTemplateConfig)
+                );
+
+        /**
+         * Factory responsible for creating Kafka listener containers.
+         *
+         * Supports:
+         * - Concurrent message processing
+         * - Partition-based parallelism
+         * - Custom error handling
          */
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        // Inject the consumer factory created earlier
+        /**
+         * Associates this listener factory with the consumer factory.
+         *
+         * This tells Spring how to create actual Kafka consumers.
+         */
         factory.setConsumerFactory(consumerFactory);
 
-        // Return the fully configured factory
+        /**
+         * Registers the common error handler.
+         *
+         * Any exception thrown during message consumption
+         * will be handled here.
+         */
+        factory.setCommonErrorHandler(errorHandler);
+
         return factory;
+    }
+
+    /**
+     * KafkaTemplate Bean
+     * ------------------
+     * KafkaTemplate is used to publish messages to Kafka topics.
+     *
+     * In this configuration:
+     * - It is mainly used to publish messages to Dead Letter Topics (DLT)
+     * - Can also be used for normal message production
+     */
+    @Bean
+    public KafkaTemplate<String, Object> kafkaTemplateConfig(
+            ProducerFactory<String, Object> producerFactoryConfig) {
+
+        return new KafkaTemplate<>(producerFactoryConfig);
+    }
+
+    /**
+     * ProducerFactory Bean
+     * --------------------
+     * Creates Kafka producer instances.
+     *
+     * Used by KafkaTemplate to:
+     * - Serialize messages
+     * - Connect to Kafka brokers
+     * - Publish messages reliably
+     */
+    @Bean
+    public ProducerFactory<String, Object> producerFactoryConfig() {
+
+        // Holds Kafka producer configuration
+        Map<String, Object> config = new HashMap<>();
+
+        /**
+         * Kafka broker address for producer.
+         *
+         * Same broker can be used for both producer and consumer.
+         */
+        config.put(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                environment.getProperty("spring.kafka.consumer.bootstrap-servers")
+        );
+
+        /**
+         * Serializes message VALUE (Java Object → JSON byte[])
+         */
+        config.put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                JsonSerializer.class
+        );
+
+        /**
+         * Serializes message KEY (String → byte[])
+         */
+        config.put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class
+        );
+
+        /**
+         * Creates Kafka ProducerFactory using above configuration.
+         */
+        return new DefaultKafkaProducerFactory<>(config);
     }
 }
