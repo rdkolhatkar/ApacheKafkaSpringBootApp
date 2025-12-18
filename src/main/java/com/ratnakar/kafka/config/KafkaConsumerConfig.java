@@ -2,6 +2,7 @@ package com.ratnakar.kafka.config;
 
 // ========================= IMPORTS EXPLANATION =========================
 
+import com.ratnakar.kafka.exception.NotRetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 // Provides Kafka consumer configuration keys like bootstrap servers, group id, deserializers, etc.
 
@@ -45,6 +46,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 // Converts JSON byte[] messages into Java POJOs
 
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.web.client.HttpServerErrorException;
 // Converts Java objects into JSON before publishing to Kafka
 
 import java.util.HashMap;
@@ -198,6 +200,9 @@ public class KafkaConsumerConfig {
                 new DefaultErrorHandler(
                         new DeadLetterPublishingRecoverer(kafkaTemplateConfig)
                 );
+        // If application throws exception then this time Error handler will not attempt to consume message from topic again
+        // With below code "addNotRetryableExceptions", app will send the exception to dead letter topic
+        errorHandler.addNotRetryableExceptions(NotRetryableException.class, HttpServerErrorException.class);
 
         /**
          * Factory responsible for creating Kafka listener containers.
