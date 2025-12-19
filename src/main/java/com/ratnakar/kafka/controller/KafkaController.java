@@ -6,10 +6,7 @@ import com.ratnakar.kafka.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -34,5 +31,17 @@ public class KafkaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessage(new Date(), e.getMessage(), "/products/create"));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(productID);
+    }
+    @GetMapping("/response/200")
+    public ResponseEntity<String> successResponse() {
+        return ResponseEntity
+                .status(HttpStatus.OK)           // HTTP 200
+                .body("Request processed successfully");
+    }
+    @GetMapping("/response/500")
+    public ResponseEntity<String> errorResponse() {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)   // HTTP 500
+                .body("Something went wrong on the server");
     }
 }
