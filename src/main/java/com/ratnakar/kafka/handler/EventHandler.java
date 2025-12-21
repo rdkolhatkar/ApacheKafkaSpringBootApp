@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
+//@KafkaListener(topics = "product-created-events-topic", groupId = "product-created-events")
 @KafkaListener(topics = "product-created-events-topic")
 public class EventHandler {
 
@@ -29,7 +30,7 @@ public class EventHandler {
     public void handle(ProductCreatedEvent productCreatedEvent){
         // To test the Not Retryable Exception uncomment the below line and run the application
         // if(true) throw new NotRetryableException("An Error took place. No need to consume the message again.");
-        log.info("Received a new event: "+productCreatedEvent.getTitle());
+        log.info("Received a new event: "+productCreatedEvent.getTitle() + " With product id as "+productCreatedEvent.getProductId());
         String requestUrl = "http://localhost:8090/response/200";
         try{
             ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
