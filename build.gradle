@@ -32,10 +32,11 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation 'org.springframework.kafka:spring-kafka' // Apache Kafka Dependency for spring-boot
     implementation("org.apache.tomcat.embed:tomcat-embed-el:${tomcatEmbededCore}")
     implementation("org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbededCore}")
-    implementation "com.h2database:h2:${h2dbVersion}"
+    implementation "com.h2database:h2"
     implementation("org.postgresql:postgresql:${postgreSqlDriver}")
     implementation("org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbededCore}")
     implementation("org.apache.tomcat:tomcat-jasper:${tomcatJasper}")

@@ -181,3 +181,13 @@ Make WSL (Ubuntu) accessible from Windows to publish event in the kafka_2.13-4.1
     -> spring.kafka.bootstrap-servers=172.30.177.4:9092
     -> spring.kafka.producer.bootstrap-servers=172.30.177.4:9092
     -> spring.kafka.admin.bootstrap-servers=172.30.177.4:9092
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Open the H2 database UI Console to check if data is stored or not
+1) H2 Database UI Console Url: http://localhost:<port number of your SpringBoot tomcat server>/h2-console
+Example: http://localhost:8090/h2-console
+2) Check the application.properties of your spring-boot application to check the H2 JDBC url
+Example: spring.datasource.url=jdbc:h2:mem:testdb
+3) Here or Db name is testdb, Copy and Paste this Url into H2 GUI field called JDBC URL
+4) Enter Username and Password in the respective fields of this H2, Check the image from path ImportantNotes/In-MemoryH2databaseGUI_images
+5) To run the SQL Query to check the records in H2 DB check the image from path ImportantNotes/In-MemoryH2databaseGUI_images/SqlQueryConsole_H2.PNG
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
