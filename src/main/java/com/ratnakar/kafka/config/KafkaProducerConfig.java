@@ -10,6 +10,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +56,9 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.producer.properties.max.in.flight.requests.per.connection}")
     private Integer inflightRequests;
 
+    @Value("${spring.kafka.producer.transaction-id-prefix}")
+    private String transactionalIdPrefix;
+
     /**
      * Creates a map of Kafka Producer configurations.
      * This method reads all injected property values
@@ -99,6 +103,10 @@ public class KafkaProducerConfig {
 
         // config.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
+        // ProducerConfig.TRANSACTIONAL_ID_CONFIG (set via spring.kafka.producer.transaction-id-prefix) assigns a transactional ID to the Kafka producer,
+        // enabling exactly-once message delivery and transactional writes (commit or rollback messages atomically).
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionalIdPrefix);
+
         // Returns the complete producer configuration map
         return config;
     }
@@ -132,6 +140,116 @@ public class KafkaProducerConfig {
      * It returns a NewTopic object which Spring Boot will use to
      * auto-create the topic at application startup (if auto-creation is enabled).
      */
+    /**
+     * ------------------------------------------------------------
+     * KafkaTemplate<String, Object> Bean (Generic Kafka Template)
+     * ------------------------------------------------------------
+     *
+     * WHY THIS BEAN EXISTS:
+     * ---------------------
+     * 1. KafkaTemplate is Spring Kafka's high-level abstraction used to
+     *    send messages to Kafka topics.
+     *
+     * 2. This specific KafkaTemplate is defined with <String, Object>
+     *    instead of <String, ProductCreatedEvent> to make it GENERIC.
+     *
+     * 3. A generic KafkaTemplate allows:
+     *    - Sending different types of messages (multiple event models)
+     *    - Using the same template inside Kafka transactions
+     *    - Flexibility when working with multiple topics and payloads
+     *
+     * 4. Spring needs this bean so it can:
+     *    - Be injected using @Autowired
+     *    - Participate in Kafka transactions
+     *    - Reuse producer instances efficiently
+     *
+     * WHEN THIS BEAN IS USED:
+     * ----------------------
+     * - Whenever KafkaTemplate<String, Object> is autowired
+     * - When sending messages inside @Transactional methods
+     * - When multiple event types are published from the same service
+     *
+     * HOW IT WORKS INTERNALLY:
+     * ------------------------
+     * - KafkaTemplate internally requests a Kafka Producer from
+     *   the ProducerFactory
+     * - The ProducerFactory uses producerConfigs()
+     * - Serialization, retries, idempotence, and transactions
+     *   are all handled automatically
+
+    @Bean
+    KafkaTemplate<String, Object> kafkaTemplate(
+            ProducerFactory<String, Object> producerFactory) {
+
+        // Creates a KafkaTemplate using the provided ProducerFactory
+        // The ProducerFactory is responsible for creating and managing
+        // KafkaProducer instances with the configured properties
+        // (bootstrap servers, serializers, idempotence, transactions, etc.)
+        return new KafkaTemplate<>(producerFactory);
+    }
+    */
+
+    /**
+     * ------------------------------------------------------------
+     * KafkaTransactionManager<String, Object> Bean
+     * ------------------------------------------------------------
+     *
+     * WHY THIS BEAN EXISTS:
+     * ---------------------
+     * 1. Kafka does NOT manage transactions automatically.
+     *
+     * 2. KafkaTransactionManager integrates Kafka transactions
+     *    with Spring's transaction management system.
+     *
+     * 3. This bean is REQUIRED if you want to:
+     *    - Use @Transactional with Kafka
+     *    - Achieve exactly-once message delivery
+     *    - Commit or rollback Kafka messages atomically
+     *
+     * WHAT PROBLEM IT SOLVES:
+     * ----------------------
+     * Without KafkaTransactionManager:
+     * - Messages may be sent even if an exception occurs
+     * - No rollback capability
+     *
+     * With KafkaTransactionManager:
+     * - Messages are committed only if the transaction succeeds
+     * - Messages are rolled back if any exception occurs
+     *
+     * WHEN THIS BEAN IS USED:
+     * ----------------------
+     * - Whenever a method annotated with @Transactional
+     *   sends Kafka messages
+     *
+     * - Spring automatically detects this TransactionManager
+     *   and uses it for Kafka operations
+     *
+     * HOW IT WORKS INTERNALLY:
+     * ------------------------
+     * 1. Spring detects @Transactional
+     * 2. KafkaTransactionManager starts a Kafka transaction
+     * 3. KafkaTemplate sends messages
+     * 4. On success -> commitTransaction()
+     * 5. On failure -> abortTransaction()
+     *
+     * IMPORTANT REQUIREMENT:
+     * ----------------------
+     * - spring.kafka.producer.transaction-id-prefix MUST be set
+     * - This ensures each producer has a unique transactional.id
+     * - Without this, Kafka transactions will NOT work
+
+    @Bean
+    KafkaTransactionManager<String, Object> kafkaTransactionManager(
+            ProducerFactory<String, Object> producerFactory) {
+
+        // Creates and returns a KafkaTransactionManager
+        // The ProducerFactory supplies transactional KafkaProducer instances
+        // This enables begin, commit, and rollback of Kafka transactions
+        return new KafkaTransactionManager<>(producerFactory);
+    }
+    */
+
+
     @Bean
     public NewTopic createTopic() {
         return TopicBuilder
